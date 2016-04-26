@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">EARTH LIVE NETWORK</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_shared">Compartir</string>
+    <string name="action_handle_menu_bottom">Mostrar menú inferior</string>
+    <string name="action_handle_menu_right">Mostrar menú lateral</string>
+    <string name="loading">Cargando...</string>
+    <string name="err_load_data">Error al cargar base de datos</string>
+    <string name="action_retry">Reintentar</string>
+    <string name="title_activity_map">MapActivity</string>
+    <string name="zoom">"Nivel de zoom "</string>
+    <string name="resolution_per_pixel">"Resolución (por pixel): "</string>
+    <string name="err_result_null">Ocurrio un error al cargar el formato</string>
+    <string name="hint_fecha">Fecha</string>
+    <string name="units">Unidad medida</string>
+    <string name="err_create_file">Error al crear archivo</string>
+    <string name="err_file_not_found">Archivo no encontrado</string>
+    <string name="err_access_dained">Acceso denegado</string>
+</resources>
