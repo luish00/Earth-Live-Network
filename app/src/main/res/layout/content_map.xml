@@ -119,9 +119,8 @@
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:layout_alignParentRight="true"
-
         android:layout_above="@+id/containerBottom"
-        android:layout_alignBottom="@+id/containerBottom">
+        android:layout_marginBottom="-25dp">
         <!--<ImageButton-->
             <!--android:layout_width="50dp"-->
             <!--android:layout_height="50dp"-->

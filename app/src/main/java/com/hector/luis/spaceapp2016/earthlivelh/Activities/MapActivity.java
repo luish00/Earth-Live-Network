@@ -154,50 +154,27 @@ public class MapActivity extends AppCompatActivity {
     }
 
     public void loadImagenRequest(String url) {
+        startDialog(R.string.load_img);
+
         ImageRequest request0 = new ImageRequest(url, new Response.Listener<Bitmap>() {
             @Override
             public void onResponse(Bitmap response) {
                 bmpLayout = response;
                 imgCoastLines.setImageBitmap(response);
                 mAttacher.update();
-                dialog.dismiss();
+                closeDialog();
             }
         }, 0, 0, null, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                imgCoastLines.setImageResource(R.mipmap.ic_launcher);
-                dialog.dismiss();
+                imgCoastLines.setImageResource(R.drawable.coast_lines_zoom_0);
+                closeDialog();
+                Toast.makeText(MapActivity.this, R.string.err_create_file, Toast.LENGTH_SHORT).show();
             }
         });
 
         request0.setRetryPolicy(new DefaultRetryPolicy(TIME_OUT_REQUEST, 1, 1f));
         AppController.getInstance().addToRequestQueue(request0);
-    }
-
-    public void onClickHandleBottomMenu(View v) {
-        int lVisibility = View.GONE;
-        int lIcon = ICON_ARROW_UP;
-
-        if (lyBottom.getVisibility() == View.GONE) {
-            lVisibility = View.VISIBLE;
-            lIcon = ICON_ARROW_DOWN;
-        }
-
-        lyBottom.setVisibility(lVisibility);
-        ((ImageView) v).setImageResource(lIcon);
-    }
-
-    public void onClickHandleRightMenu(View v) {
-        int lVisibility = View.GONE;
-        int lIcon = ICON_ARROW_LEFT;
-
-        if (lyRight.getVisibility() == View.GONE) {
-            lVisibility = View.VISIBLE;
-            lIcon = ICON_ARROW_RIGHT;
-        }
-
-        lyRight.setVisibility(lVisibility);
-        ((ImageView) v).setImageResource(lIcon);
     }
 
     private void handlePanels(LinearLayout prLayout) {
@@ -208,9 +185,12 @@ public class MapActivity extends AppCompatActivity {
         }
 
         prLayout.setVisibility(lVisibility);
-        setPaddingLyRight();
+        //setPaddingLyRight();
     }
 
+    /**
+     * @deprecated
+     */
     private void setPaddingLyRight() {
         if (lyBottom.getVisibility() == View.VISIBLE) {
             int paddingPixel = 50;
@@ -218,7 +198,7 @@ public class MapActivity extends AppCompatActivity {
             int paddingDp = (int) (paddingPixel * density);
             lyRight.setPadding(0, 0, 0, paddingDp);
         } else {
-            lyRight.setPadding(0,0,0,0);
+            lyRight.setPadding(0, 0, 0, 0);
         }
     }
 
@@ -229,9 +209,9 @@ public class MapActivity extends AppCompatActivity {
 
             mTileRow = mTitleRowScale[mZoom];
             mTileCol = mTitleColScale[mZoom];
-           // if (inRange) {
-                String url = createUrlTemplete();
-                getUrlImagenFromGIBS(url);
+            // if (inRange) {
+            String url = createUrlTemplete();
+            getUrlImagenFromGIBS(url);
 //            } else {
 //                mZoom++;
 //            }
@@ -248,8 +228,8 @@ public class MapActivity extends AppCompatActivity {
             mTileRow = mTitleRowScale[mZoom];
             mTileCol = mTitleColScale[mZoom];
 //            if (inRange) {
-                String url = createUrlTemplete();
-                getUrlImagenFromGIBS(url);
+            String url = createUrlTemplete();
+            getUrlImagenFromGIBS(url);
 //            } else {
 //                mZoom--;
 //            }
@@ -262,7 +242,7 @@ public class MapActivity extends AppCompatActivity {
         boolean has = true;
         String aaa = layer.getTileMatrixSet();
         List<TileMatrixSet> matrixSet = realm.where(TileMatrixSet.class).findAll();
-                //.equalTo("identifier", layer.getTileMatrixSet()).findFirst();
+        //.equalTo("identifier", layer.getTileMatrixSet()).findFirst();
 
         if (matrixSet != null) {
             TileMatrix tileMatrix = null;
@@ -286,6 +266,9 @@ public class MapActivity extends AppCompatActivity {
     }
 
     public void getUrlImagenFromGIBS(String url) {
+        bmpLayout = null;    //Limpiando la imagen de memoria
+        imgCoastLines.setImageDrawable(Utils.getDrawableById(MapActivity.this, R.drawable.coast_lines_zoom_0));
+        mAttacher.update();
         updateZoomLevel();
         startDialog();
 
@@ -300,18 +283,18 @@ public class MapActivity extends AppCompatActivity {
                     String lUrl = response.getString("data");
                     lUrl = AppConstant.URL_SERVER + lUrl.replace('\\','/');
 
+                    closeDialog();
                     loadImagenRequest(lUrl);
-                    dialog.dismiss();
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    dialog.dismiss();
+                    closeDialog();
                     Toast.makeText(MapActivity.this, "Ocurrio un error al cargar la imagen :(", Toast.LENGTH_SHORT).show();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                dialog.dismiss();
+                closeDialog();
                 Toast.makeText(MapActivity.this, "Ocurrio un error al cargar la imagen :(", Toast.LENGTH_SHORT).show();
             }
         });
@@ -350,7 +333,7 @@ public class MapActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(href))
             return;
 
-        startDialog();
+        startDialog(R.string.load_meta_data);
 
         Map<String,String> params = new HashMap<>();
         params.put("xmlFile", layer.getMetaDataHref());
@@ -384,18 +367,21 @@ public class MapActivity extends AppCompatActivity {
 
                         metaDataColors.setColorMapEntries(lColorMapEntries);
                         colorMapEntitiesAdapter.notifyDataSetChanged();
+                        closeDialog();
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        closeDialog();
                         Toast.makeText(MapActivity.this, "Server error" , Toast.LENGTH_SHORT).show();
                     }
                 } else {
+                    closeDialog();
                     Toast.makeText(MapActivity.this, "Meta data is null" , Toast.LENGTH_SHORT).show();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                dialog.dismiss();
+                closeDialog();
                 Toast.makeText(MapActivity.this, R.string.err_load_data, Toast.LENGTH_SHORT).show();
             }
         });
@@ -405,9 +391,27 @@ public class MapActivity extends AppCompatActivity {
 
     private void startDialog() {
         String msj = getResources().getString(R.string.loading);
-        dialog.setMessage(msj);
-        dialog.setCancelable(true);
-        dialog.show();
+        showDialog(msj);
+    }
+
+    private void startDialog(int prString) {
+        String msj = MapActivity.this.getResources().getString(prString);
+
+
+    }
+
+    private void closeDialog() {
+        if (dialog.isShowing())
+            dialog.dismiss();
+    }
+
+    private void showDialog(String prMsj) {
+        dialog.setMessage(prMsj);
+
+        if (!dialog.isShowing()) {
+            dialog.setCancelable(false);
+            dialog.show();
+        }
     }
     public void onShowDatePiker(View v) {
         new DialogDatePiker(this){
@@ -465,56 +469,6 @@ public class MapActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
-
-//class ColorMapEntitiesAdapter extends ArrayAdapter<ColorMapEntry> {
-//    private List<ColorMapEntry> colorMapEntries = new ArrayList<>();
-//    private Context context;
-//    private int resource;
-//    private LayoutInflater inflater;
-//
-//    public ColorMapEntitiesAdapter(Context context, int resource, ArrayList<ColorMapEntry> colorMapEntries) {
-//        super(context, resource);
-//
-//        this.colorMapEntries = colorMapEntries;
-//        this.context = context;
-//        this.resource = resource;
-//        this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//    }
-//
-//    @Override
-//    public int getPosition(ColorMapEntry item) {
-//        return super.getPosition(item);
-//    }
-//
-//    @Override
-//    public int getItemViewType(int position) {
-//        return super.getItemViewType(position);
-//    }
-//
-//    @Override
-//    public ColorMapEntry getItem(int position) {
-//        return super.getItem(position);
-//    }
-//
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        View view = convertView;
-//        ImageView color;
-//        TextView label;
-//
-//        if (view == null)
-//            view = inflater.inflate(resource, null);
-//
-//        color = (ImageView) view.findViewById(R.id.color);
-//        label = (TextView) view.findViewById(R.id.label);
-//
-//        Log.e("titit", position+"");
-//
-//        color.setBackgroundColor(colorMapEntries.get(position).getRgb());
-//        label.setText(colorMapEntries.get(position).getLabel());
-//        return view;
-//    }
-//}
 
 class ColorMapEntitiesAdapter extends ArrayAdapter<ColorMapEntry> {
 

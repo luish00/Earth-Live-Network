@@ -16,4 +16,6 @@
     <string name="err_create_file">Error al crear archivo</string>
     <string name="err_file_not_found">Archivo no encontrado</string>
     <string name="err_access_dained">Acceso denegado</string>
+    <string name="load_img">Cargando imagen...</string>
+    <string name="load_meta_data">Cargando meta datos</string>
 </resources>
