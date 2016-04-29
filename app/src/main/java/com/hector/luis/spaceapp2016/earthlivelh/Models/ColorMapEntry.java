@@ -7,15 +7,15 @@ import android.graphics.Color;
  */
 public class ColorMapEntry {
     private int rgb;
-    private boolean transparent;
-    private String value;
-    private String label;
+    private boolean transparent = false;
+    private String value = "";
+    private String label = "";
 
     public int getRgb() {
         return rgb;
     }
 
-    public void setRgb(String rgb, boolean isTransparent) {
+    public void setRgb(String rgb) {
         String[] rgbArray = rgb.split(",");
         this.rgb = Color.rgb(Integer.parseInt(rgbArray[0]),Integer.parseInt(rgbArray[1]),Integer.parseInt(rgbArray[2]));
     }

@@ -5,17 +5,17 @@
 
     <ImageView
         android:id="@+id/color"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
+        android:layout_width="20dp"
+        android:layout_height="5dp"
         android:background="#000"/>
-    <TextView
-        android:id="@+id/label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="18dp"
-        android:text="Meta data"
-        android:gravity="center_vertical"
-        android:textSize="12sp"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
+    <!--<TextView-->
+        <!--android:id="@+id/label"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:minHeight="18dp"-->
+        <!--android:text="Meta data"-->
+        <!--android:gravity="center_vertical"-->
+        <!--android:textSize="12sp"-->
+        <!--android:paddingLeft="@dimen/activity_horizontal_margin"-->
         />
 </LinearLayout>

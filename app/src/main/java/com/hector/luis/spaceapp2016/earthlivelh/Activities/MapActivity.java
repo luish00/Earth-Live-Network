@@ -68,6 +68,8 @@ public class MapActivity extends AppCompatActivity {
     private LinearLayout lyBottom;
     private LinearLayout lyRight;
     private TextView txvUnits;
+    private TextView txvMin;
+    private TextView txvMax;
     private ListView listViewMetaData;
     private ColorMapEntitiesAdapter colorMapEntitiesAdapter;
 
@@ -117,6 +119,8 @@ public class MapActivity extends AppCompatActivity {
         lyBottom = (LinearLayout) findViewById(R.id.lyBottom);
         lyRight = (LinearLayout) findViewById(R.id.lyRight);
         txvUnits = (TextView) findViewById(R.id.txvUnits);
+        txvMin = (TextView) findViewById(R.id.txvMin);
+        txvMax = (TextView) findViewById(R.id.txvMax);
         listViewMetaData = (ListView) findViewById(R.id.listMetaData);
         colorMapEntitiesAdapter = new ColorMapEntitiesAdapter(this, R.layout.item_meta_data_colors, colorMapEntries);
         mAttacher = new PhotoViewAttacher(imgCoastLines, true);
@@ -161,6 +165,8 @@ public class MapActivity extends AppCompatActivity {
             public void onResponse(Bitmap response) {
                 bmpLayout = response;
                 imgCoastLines.setImageBitmap(response);
+
+                //mAttacher.setScale(2, true);
                 mAttacher.update();
                 closeDialog();
             }
@@ -283,7 +289,7 @@ public class MapActivity extends AppCompatActivity {
                     String lUrl = response.getString("data");
                     lUrl = AppConstant.URL_SERVER + lUrl.replace('\\','/');
 
-                    closeDialog();
+                    //closeDialog();
                     loadImagenRequest(lUrl);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -344,30 +350,47 @@ public class MapActivity extends AppCompatActivity {
                 if (!response.isNull("data")) {
                     try {
                         JSONObject jsoData = response.getJSONObject("data");
-                        JSONObject jsoAttributes = jsoData.getJSONObject("@attributes");
-                        JSONArray jsaColorMapEntry = jsoData.getJSONArray("ColorMapEntry");
+                        JSONArray jsaColorMap = jsoData.getJSONArray("ColorMap");
+                        JSONObject jsoColorEntities = jsaColorMap.getJSONObject(0);
+                        //
+                        JSONObject jsoEntities = jsoColorEntities.getJSONObject("Entries");
+                        JSONObject jsoLegends = jsoColorEntities.getJSONObject("Legend");
+
+                        JSONObject jsoLeyendsArrt = jsoLegends.getJSONObject("@attributes");
+                        JSONArray jsaLegendEntry = jsoLegends.getJSONArray("LegendEntry");
+
                         ArrayList<ColorMapEntry> lColorMapEntries = new ArrayList<>();
 
-                        metaDataColors.setUnits(jsoAttributes.getString("units"));
-                        String lUnit = MapActivity.this.getResources().getString(R.string.units);
-                        txvUnits.setText(lUnit + " " + metaDataColors.getUnits());
+                        //continuous
+                        if (!jsoColorEntities.isNull("@attributes")) {
+                            JSONObject jsoAttributes = jsoColorEntities.getJSONObject("@attributes");
+                            metaDataColors.setUnits(jsoAttributes.getString("units"));
+                            metaDataColors.setType(jsoLeyendsArrt.getString("type"));
+                            metaDataColors.setMinLabel(jsoLeyendsArrt.optString("minLabel"));
+                            metaDataColors.setMaxLabel(jsoLeyendsArrt.optString("maxLabel"));
+                            //String lUnit = MapActivity.this.getResources().getString(R.string.units);
+                            String lUnit = jsoAttributes.getString("title");
+                            txvUnits.setText(lUnit + " " + metaDataColors.getUnits());
+                            txvMin.setText("Min: " + metaDataColors.getMaxLabel());
+                            txvMax.setText("Max: " + metaDataColors.getMaxLabel());
 
-                        for (int i = 0; i < jsaColorMapEntry.length(); i++) {
-                            JSONObject item = jsaColorMapEntry.getJSONObject(i).getJSONObject("@attributes");
+                        }
+                        for (int i = 0; i < jsaLegendEntry.length(); i++) {
+                            JSONObject item = jsaLegendEntry.getJSONObject(i).getJSONObject("@attributes");
                             ColorMapEntry lColorMapEntry = new ColorMapEntry();
-                            boolean isTransparent = item.getBoolean("transparent");
+                            //boolean isTransparent = item.getBoolean("transparent");
 
-                            lColorMapEntry.setRgb(item.getString("rgb"), isTransparent);
-                            lColorMapEntry.setTransparent(isTransparent);
-                            lColorMapEntry.setValue(String.valueOf(item.opt("value")));
-                            lColorMapEntry.setLabel(item.getString("label"));
+                            lColorMapEntry.setRgb(item.getString("rgb"));
+//                            lColorMapEntry.setTransparent(isTransparent);
+//                            lColorMapEntry.setValue(String.valueOf(item.opt("value")));
+//                            lColorMapEntry.setLabel(item.getString("label"));
 
                             MapActivity.this.colorMapEntries.add(lColorMapEntry);
                         }
 
                         metaDataColors.setColorMapEntries(lColorMapEntries);
                         colorMapEntitiesAdapter.notifyDataSetChanged();
-                        closeDialog();
+                       // closeDialog();
                     } catch (JSONException e) {
                         e.printStackTrace();
                         closeDialog();
@@ -511,10 +534,10 @@ class ColorMapEntitiesAdapter extends ArrayAdapter<ColorMapEntry> {
 
 
         ImageView color = (ImageView) view.findViewById(R.id.color);
-        TextView label = (TextView) view.findViewById(R.id.label);
+//        TextView label = (TextView) view.findViewById(R.id.label);
 
         color.setBackgroundColor(colorMapEntries.get(position).getRgb());
-        label.setText(colorMapEntries.get(position).getLabel());
+//        label.setText(colorMapEntries.get(position).getLabel());
         return view;
     }
 }
